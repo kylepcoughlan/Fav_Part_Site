@@ -1,12 +1,17 @@
-from django.shortcuts import render, redirect
+import random
+from django.shortcuts import render
 from .models import Post
-from .forms import PostForm
 
-#homepage that will display all the message s
 def home(request):
-    posts = Post.objects.all()
-    return render(request, 'home.html', {'posts': posts})
-
+    # Fetch all posts
+    posts = list(Post.objects.all())
+    
+    # Get up to 36 random posts
+    random_posts = random.sample(posts, min(len(posts), 36))
+    
+    return render(request, 'home.html', {'posts': random_posts})
+    
+    
 #view for creating a post 
 def create_post(request):
     if request.method == "POST":
