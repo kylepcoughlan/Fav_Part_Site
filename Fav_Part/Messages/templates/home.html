@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board</title>
+    <style>
+        /* Background style for a warm, wood-style page */
+        body {
+            background: linear-gradient(135deg, #f5e6c4, #e6ccb2);
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 60px; /* Space for the footer */
+        }
+
+        /* Header styling */
+        h1 {
+            color: #8b5e3c;
+            margin-top: 20px;
+        }
+
+        /* Styles for the "Create a Post" button */
+        .create-post-button {
+            position: fixed;
+            bottom: 60px; /* Space above footer */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background-color: #a07855;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hover effect for button */
+        .create-post-button:hover {
+            background-color: #8b5e3c;
+        }
+
+        /* Styling for the posts */
+        .post {
+            background: #fffaf0;
+            border: 1px solid #d4b483;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 15px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;             /* Width of the post */
+            max-width: 600px;      /* Maximum width */
+            aspect-ratio: 1 / 1;   /* Ensures a square shape */
+            display: flex;         /* Enable flexbox for internal content */
+            flex-direction: column; /* Stack children vertically */
+            justify-content: space-between; /* Space out children */
+        }
+
+        /* Title styling within each post */
+        .post h2 {
+            color: #8b5e3c;
+            margin: 0 0 10px;
+        }
+
+        /* Content styling within each post */
+        .post p {
+            color: #5f4b32;
+            flex-grow: 1; /* Allow paragraph to grow and fill space */
+        }
+
+        /* Date styling within each post */
+        .post small {
+            color: #a07855;
+        }
+
+        /* Footer styling */
+        .footer-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #8b5e3c;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        {% for post in posts %}
+            <div class="post">
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content }}</p>
+                <small>Posted on {{ post.created_at }}</small>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Create Post Button -->
+    <a href="{% url 'create_post' %}" class="create-post-button">Create a Post</a>
+
+    <!-- Footer Bar -->
+    <div class="footer-bar">
+        &copy; 2023 Notice Board. All rights reserved.
+    </div>
+</body>
+</html>
