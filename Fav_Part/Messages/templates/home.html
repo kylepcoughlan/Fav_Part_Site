@@ -41,13 +41,17 @@
             transform: scale(1.05); /* Slightly increase button size on hover */
         }
 
+        /* Container styling */
         .post-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
             gap: 20px; /* Space between posts */
-            padding: 20px; /* Padding around the grid */
+            width: 90%; /* Ensure the grid spans full width */
+            max-width: 1200px; /* Optional: to limit the width on larger screens */
+            padding: 10px; /* Padding around the grid */
         }
 
+        /* Post card styling */
         .post {
             background: #fffaf0;
             border: 1px solid #d4b483;
@@ -55,7 +59,36 @@
             padding: 15px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             opacity: 0;           
-            animation: fadeIn 0.5s forwards; /* Fade in animation for individual posts */
+            animation: fadeIn 0.3s forwards; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            overflow: hidden; /* Hide overflow text */
+            display: flex; /* Use flexbox to manage content layout */
+            flex-direction: column; /* Arrange items in a column */
+            justify-content: space-between; /* Space items vertically */
+            min-height: 250px; /* Consistent height */
+        }
+
+        .post h2 {
+            font-size: 1.2em; /* Adjust heading size */
+            white-space: nowrap; /* Prevent header from wrapping */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Show ellipsis for overflow text */
+        }
+
+        .post p {
+            flex-grow: 1; /* Allow paragraph to take up remaining space */
+            font-size: 1em; /* Adjust font size */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Show ellipsis for overflow text */
+            display: -webkit-box; /* Enable flexbox layout */
+            -webkit-box-orient: vertical; /* Allow vertical orientation */
+            -webkit-line-clamp: 4; /* Clamp to 4 lines (adjust as needed) */
+            line-height: 1.2em; /* Set line height */
+        }
+
+        .post:hover {
+            transform: translateY(-5px); /* Raise the note slightly */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Increase shadow for effect */
         }
 
         @keyframes fadeIn {
@@ -82,9 +115,10 @@
             box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.2);
         }
 
+        /* For narrow screens, ensure posts use full width */
         @media (max-width: 600px) {
-            .post {
-                width: 90%; /* Adjust width for smaller screens */
+            .post-container {
+                grid-template-columns: 1fr; /* Single column for smaller screens */
             }
         }
     </style>
@@ -93,10 +127,16 @@
     <h1>Notice Board</h1>
     <div class="post-container">
         {% for post in posts %}
-            <div class="post" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s; --i: {{ forloop.counter0 }};"> <!-- Use for loop counter for animation delay -->
+            <div class="post" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s;">
                 <h2>{{ post.title }}</h2>
                 <p>{{ post.content }}</p>
                 <small>Posted on {{ post.created_at }}</small>
+                
+                <!-- Display the like count with an id for JavaScript to target -->
+                <p id="like-count-{{ post.id }}">{{ post.likes }} likes</p>
+                
+                <!-- Add a like button with an onclick event -->
+                <button onclick="likePost({{ post.id }})">Like</button>
             </div>
         {% endfor %}
     </div>
@@ -112,9 +152,28 @@
         document.addEventListener('DOMContentLoaded', () => {
             const posts = document.querySelectorAll('.post');
             posts.forEach((post, index) => {
-                post.style.animationDelay = `${0.2 * Math.floor(index / 3)}s`; // Apply staggered delay for each row
+                post.style.animationDelay = `${0.2 * Math.floor(index / 3)}s`; // Change 0.3 to 0.2 for faster animation
             });
         });
+    </script>
+
+    <script>
+        function likePost(postId) {
+            fetch(`{% url 'like_post' 0 %}`.replace('/0/', `/${postId}/`), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}', // CSRF token for security
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the like count on the page without refreshing
+                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                likeCountElement.textContent = `${data.likes} likes`;
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ class Post(models.Model):
     signed = models.CharField(max_length=12)
     created_at = models.DateTimeField(auto_now_add=True)
     incremental_id = models.PositiveIntegerField(editable=False, unique=True, null=True, blank=True)
+    likes = models.PositiveIntegerField(default=0)  # Field to track likes
 
     def save(self, *args, **kwargs):
         # Set the incremental_id if it's not already set

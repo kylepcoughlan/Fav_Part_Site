@@ -17,7 +17,7 @@ class Command(BaseCommand):
         for _ in range(num_notes):
             post = Post(
                 title=f"Note {Post.objects.count() + 1}",  # Title based on count
-                content=fake.text(max_nb_chars=200),
+                content=fake.text(max_nb_chars=10),
                 signed=fake.first_name()
             )
             post.save()
