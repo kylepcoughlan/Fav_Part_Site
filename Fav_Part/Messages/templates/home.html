@@ -121,13 +121,58 @@
                 grid-template-columns: 1fr; /* Single column for smaller screens */
             }
         }
+
+
+
+
+
+        /* for the pop up window */
+        /* Modal container (hidden by default) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Make sure it’s on top of other content */
+        }
+
+        /* Modal content */
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s;
+        }
+
+        /* Close button */
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <h1>Notice Board</h1>
     <div class="post-container">
         {% for post in posts %}
-            <div class="post" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s;">
+            <div class="post" onclick="openModal({{ post.id }}, '{{ post.title }}', '{{ post.content|escapejs }}', '{{ post.created_at|date:'F j, Y' }}')" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s;">
                 <h2>{{ post.title }}</h2>
                 <p>{{ post.content }}</p>
                 <small>Posted on {{ post.created_at }}</small>
@@ -146,6 +191,17 @@
     <div class="footer-bar">
         &copy; 2023 Notice Board. All rights reserved.
     </div>
+
+    <!-- Modal container, hidden by default -->
+    <div id="post-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Post Title</h2>
+            <p id="modal-content">Post content goes here...</p>
+            <small id="modal-date">Posted on: date</small>
+        </div>
+    </div>
+    
 
     <script>
         // Dynamic delay setup
@@ -174,6 +230,58 @@
             })
             .catch(error => console.error('Error:', error));
         }
+
+// Function to open the modal and display post content
+function openModal(postId, title, content, date) {
+    // Set modal content
+    document.getElementById("modal-title").textContent = title;
+    document.getElementById("modal-content").textContent = content;
+    document.getElementById("modal-date").textContent = `Posted on: ${date}`;
+
+    // Show the modal
+    const modal = document.getElementById("post-modal");
+    modal.style.display = "flex";
+
+    // Push state to history to represent the modal being open
+    history.pushState({ modalOpen: true }, "", `#post-${postId}`);
+
+    // Add event listener for closing the modal on outside click
+    modal.addEventListener("click", closeModalOnOutsideClick);
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById("post-modal");
+    modal.style.display = "none";
+
+    // Go back in history without reloading the page
+    if (history.state && history.state.modalOpen) {
+        history.back(); // This removes the last history entry (modal open state)
+    }
+
+    // Remove the outside click event listener to avoid memory leaks
+    modal.removeEventListener("click", closeModalOnOutsideClick);
+}
+
+// Close modal if the user clicks outside the modal content
+function closeModalOnOutsideClick(event) {
+    const modalContent = document.querySelector(".modal-content");
+    if (!modalContent.contains(event.target)) {
+        closeModal();
+    }
+}
+
+// Handle the popstate event to close the modal if the back button is pressed
+window.addEventListener("popstate", (event) => {
+    if (!event.state || !event.state.modalOpen) {
+        // Close modal if there's no modal state in history
+        closeModal();
+    }
+});
+
+
+
+
     </script>
 </body>
 </html>
