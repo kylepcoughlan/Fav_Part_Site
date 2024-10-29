@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('create/', views.create_post, name='create_post'),
     path('like/<int:post_id>/', like_post, name='like_post'),
+    path('<int:post_id>/',views.get_post_data, name='get_post_data'),
 ]

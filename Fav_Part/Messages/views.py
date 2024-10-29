@@ -39,3 +39,14 @@ def like_post(request, post_id):
     
     # Fallback for non-AJAX requests
     return redirect('home')
+
+def get_post_data(request, post_id):
+    post = get_object_or_404(Post, incremental_id=post_id)
+    post_data = {
+        'id': post.incremental_id,
+        'title': post.title,
+        'content': post.content,
+        'created_at': post.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'likes': post.likes,
+    }
+    return JsonResponse(post_data)

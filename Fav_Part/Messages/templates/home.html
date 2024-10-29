@@ -243,7 +243,7 @@ function openModal(postId, title, content, date) {
     modal.style.display = "flex";
 
     // Push state to history to represent the modal being open
-    history.pushState({ modalOpen: true }, "", `#post-${postId}`);
+    history.pushState({ modalOpen: true, postId: postId }, "", `#post-${postId}`);
 
     // Add event listener for closing the modal on outside click
     modal.addEventListener("click", closeModalOnOutsideClick);
@@ -254,9 +254,9 @@ function closeModal() {
     const modal = document.getElementById("post-modal");
     modal.style.display = "none";
 
-    // Go back in history without reloading the page
+    // Replace the history state to go back without reloading the page
     if (history.state && history.state.modalOpen) {
-        history.back(); // This removes the last history entry (modal open state)
+        history.replaceState(null, "", location.pathname); // Clear hash without reload
     }
 
     // Remove the outside click event listener to avoid memory leaks
@@ -276,12 +276,28 @@ window.addEventListener("popstate", (event) => {
     if (!event.state || !event.state.modalOpen) {
         // Close modal if there's no modal state in history
         closeModal();
+    } else if (event.state.modalOpen) {
+        // Open the modal again if going back to a modal state
+        openModal(event.state.postId, document.getElementById("modal-title").textContent,
+                  document.getElementById("modal-content").textContent,
+                  document.getElementById("modal-date").textContent);
     }
 });
 
+// Check URL on page load to open modal if there's a post ID in the URL hash
+document.addEventListener('DOMContentLoaded', () => {
+    const postIdMatch = window.location.hash.match(/#post-(\d+)/);
+    if (postIdMatch) {
+        const postId = postIdMatch[1];
+        fetch(`/${postId}/`)
+            .then(response => response.json())
+            .then(data => {
+                openModal(postId, data.title, data.content, `Posted on: ${data.created_at}`);
+            })
+            .catch(error => console.error('Error loading post:', error));
+    }
+});
 
-
-
-    </script>
+</script>
 </body>
 </html>
