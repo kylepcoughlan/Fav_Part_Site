@@ -170,6 +170,10 @@
 </head>
 <body>
     <h1>Notice Board</h1>
+    <div style="margin-bottom: 20px;">
+        <input type="number" id="search-input" placeholder="Enter post number" style="padding: 8px; font-size: 16px;">
+        <button onclick="searchPost()" style="padding: 8px 16px; font-size: 16px; background-color: #a07855; color: #fff; border: none; border-radius: 4px;">Search</button>
+    </div>
     <div class="post-container">
         {% for post in posts %}
             <div class="post" onclick="openModal({{ post.id }}, '{{ post.title }}', '{{ post.content|escapejs }}', '{{ post.created_at|date:'F j, Y' }}')" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s;">
@@ -181,8 +185,8 @@
                 <p id="like-count-{{ post.id }}">{{ post.likes }} likes</p>
                 
                 <!-- Add a like button with an onclick event -->
-                <button onclick="likePost({{ post.id }})">Like</button>
-                <button onclick="sharePost({{ post.incremental_id }})">Share</button>
+                <button onclick="likePost({{ post.id }}); event.stopPropagation();">Like</button>
+                <button onclick="sharePost({{ post.incremental_id }}); event.stopPropagation();">Share</button>
             </div>
         {% endfor %}
     </div>
@@ -307,6 +311,33 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error loading post:', error));
     }
 });
+
+
+function searchPost() {
+    const postId = document.getElementById("search-input").value;
+
+    if (!postId) {
+        alert("Please enter a post number.");
+        return;
+    }
+
+    // Fetch post details using the entered post ID
+    fetch(`/${postId}/`)  // Adjust this to your API or URL endpoint for fetching post data
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Post not found");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // If post is found, open the modal with the post details
+            openModal(postId, data.title, data.content, `Posted on: ${data.created_at}`);
+        })
+        .catch(error => {
+            console.error('Error loading post:', error);
+            alert("Post not found. Please enter a valid post number.");
+        });
+}
 
 </script>
 </body>
