@@ -182,6 +182,7 @@
                 
                 <!-- Add a like button with an onclick event -->
                 <button onclick="likePost({{ post.id }})">Like</button>
+                <button onclick="sharePost({{ post.incremental_id }})">Share</button>
             </div>
         {% endfor %}
     </div>
@@ -229,6 +230,15 @@
                 likeCountElement.textContent = `${data.likes} likes`;
             })
             .catch(error => console.error('Error:', error));
+        }
+
+        function sharePost(postId) {
+            const baseUrl = 'http://127.0.0.1:8000'; // Replace with your actual site URL
+            const postUrl = `${baseUrl}/#post-${postId}`;
+
+            navigator.clipboard.writeText(postUrl)
+                .then(() => alert("Post link copied to clipboard!"))
+                .catch(error => console.error('Failed to copy text:', error));
         }
 
 // Function to open the modal and display post content
