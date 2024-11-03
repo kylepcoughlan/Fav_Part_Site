@@ -25,20 +25,20 @@ def create_post(request):
         form = PostForm()
     return render(request, 'create_post.html', {'form': form})
 
-def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    
-    # Increment the like count by 1
-    post.likes += 1
-    post.save()  # Save the updated post
+def toggle_like(request, post_id):
+    if request.method == "POST":
+        post = Post.objects.get(id=post_id)
 
-    # Check if the request is AJAX
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # Return the updated like count as JSON
-        return JsonResponse({'likes': post.likes})
+        # Toggle like count
+        post.likes += 1
+        post.save()
+
+        return JsonResponse({
+            "success": True,
+            "likes": post.likes
+        })
     
-    # Fallback for non-AJAX requests
-    return redirect('home')
+    return JsonResponse({"success": False, "error": "Invalid request"})
 
 def get_post_data(request, post_id):
     post = get_object_or_404(Post, incremental_id=post_id)

@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Board</title>
     <style>
-        /* Background style for a warm, wood-style page */
+        /* Body and container styling */
         body {
-            background:
-            url('./static/images/backgroundmk2.jpg'); /* Relative path to local image */
+            background: url('./static/images/backgroundmk2.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -18,7 +17,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 60px; /* Space for the footer */
+            padding-bottom: 60px;
         }
 
         h1 {
@@ -28,7 +27,7 @@
 
         .create-post-button {
             position: fixed;
-            bottom: 60px; 
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 30px;
@@ -38,68 +37,68 @@
             border-radius: 8px;
             font-size: 18px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s, transform 0.2s; /* Transition for hover effect */
+            transition: background-color 0.3s, transform 0.2s;
         }
 
-        /* Container styling */
         .post-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
-            gap: 20px; /* Space between posts */
-            width: 90%; /* Ensure the grid spans full width */
-            max-width: 1200px; /* Optional: to limit the width on larger screens */
-            padding: 10px; /* Padding around the grid */
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            padding: 10px;
+            overflow-y: scroll;
         }
 
-        /* Post card styling */
         .post {
-            background: linear-gradient(145deg, #f4e2c2, #e5c598); /* Warm, aged tan gradient */
+            background: linear-gradient(145deg, #f4e2c2, #e5c598);
             border: 1px solid #d4b483;
             border-radius: 8px;
             padding: 15px;
-            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), 
-                        inset 0px 0px 10px rgba(0, 0, 0, 0.1); /* Adds depth and age effect */
-            opacity: 0;           
-            animation: fadeIn 0.3s forwards; 
+            padding-bottom: 50px;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), inset 0px 0px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
             transition: transform 0.2s, box-shadow 0.2s;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             min-height: 250px;
+            position: relative;
         }
 
-        /* Heading style for a hand-drawn effect */
         .post h2 {
-            font-family: 'Figtree', serif; /* Choose a classic serif font */
-            color: #6a4e32; /* Darker brown for contrast */
+            font-family: 'Figtree', serif;
+            color: #6a4e32;
             font-weight: bold;
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
             text-overflow: ellipsis;
         }
-    
-        /* Paragraph style for aged ink effect */
+
         .post p {
-            color: #4e3b24; /* Dark brown to resemble aged ink */
+            color: #4e3b24;
             font-family: 'Times New Roman', Times, serif;
             line-height: 1.4;
         }
 
-        .post:hover {
-            transform: translateY(-5px);
-            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), 
-                        inset 0px 0px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow for effect */
+        .icon-container {
+            display: flex;
+            gap: 15px;
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
         }
 
-        @keyframes fadeIn {
-            0% {
-                transform: translateY(-50px); /* Start from above */
-                opacity: 0; /* Start invisible */
-            }
-            100% {
-                transform: translateY(0); /* End in place */
-                opacity: 1; /* End visible */
-            }
+        .icon-container i {
+            cursor: pointer;
+            color: #6a4e32;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .icon-container i:hover {
+            color: #a07855;
         }
 
         .footer-bar {
@@ -115,33 +114,24 @@
             box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* For narrow screens, ensure posts use full width */
-        @media (max-width: 600px) {
-            .post-container {
-                grid-template-columns: 1fr; /* Single column for smaller screens */
-            }
+        @keyframes fadeIn {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
-
-
-
-
-        /* for the pop up window */
-        /* Modal container (hidden by default) */
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+            background: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Make sure it’s on top of other content */
+            z-index: 1000;
         }
 
-        /* Modal content */
         .modal-content {
             background-color: #fff;
             padding: 20px;
@@ -152,7 +142,6 @@
             animation: fadeIn 0.3s;
         }
 
-        /* Close button */
         .close-button {
             position: absolute;
             top: 15px;
@@ -161,43 +150,40 @@
             cursor: pointer;
         }
 
-        /* Fade-in animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        .active-like {
+            color: red !important; /* Ensure the color is red */
         }
     </style>
+
     <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.9.1/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 <body>
     <div style="margin-bottom: 20px;">
         <input type="number" id="search-input" placeholder="Enter post number" style="padding: 8px; font-size: 16px;">
         <button onclick="searchPost()" style="padding: 8px 16px; font-size: 16px; background-color: #a07855; color: #fff; border: none; border-radius: 4px;">Search</button>
     </div>
+    
     <div class="post-container">
         {% for post in posts %}
-            <div class="post" onclick="openModal({{ post.id }}, '{{ post.title }}', '{{ post.content|escapejs }}', '{{ post.created_at|date:'F j, Y' }}')" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}0.5s;">
+            <div class="post" data-post-id="{{ post.id }}" onclick="openModal({{ post.id }}, '{{ post.title }}', '{{ post.content|escapejs }}', '{{ post.created_at|date:'F j, Y' }}')">
                 <h2>{{ post.title }}</h2>
                 <p>{{ post.content }}</p>
                 <small>Posted on {{ post.created_at }}</small>
-                
-                <!-- Display the like count with an id for JavaScript to target -->
                 <p id="like-count-{{ post.id }}">{{ post.likes }} likes</p>
                 
-                <!-- Add a like button with an onclick event -->
-                <button onclick="likePost({{ post.id }}); event.stopPropagation();">Like</button>
-                <button onclick="sharePost({{ post.incremental_id }}); event.stopPropagation();">Share</button>
+                <div class="icon-container">
+                    <i class="bi bi-heart" id="like-icon-{{ post.id }}" onclick="toggleLike({{ post.id }}); event.stopPropagation();"></i>
+                    <i class="bi bi-share" onclick="sharePost({{ post.id }}); event.stopPropagation();"></i>
+                </div>
             </div>
         {% endfor %}
     </div>
 
     <a href="{% url 'create_post' %}" class="create-post-button">Create a Post</a>
 
-    <div class="footer-bar">
-        &copy; 2023 Notice Board. All rights reserved.
-    </div>
+    <div class="footer-bar">&copy; 2023 Notice Board. All rights reserved.</div>
 
-    <!-- Modal container, hidden by default -->
     <div id="post-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
@@ -206,139 +192,60 @@
             <small id="modal-date">Posted on: date</small>
         </div>
     </div>
-    
 
     <script>
-        // Dynamic delay setup
-        document.addEventListener('DOMContentLoaded', () => {
-            const posts = document.querySelectorAll('.post');
-            posts.forEach((post, index) => {
-                post.style.animationDelay = `${0.2 * Math.floor(index / 3)}s`; // Change 0.3 to 0.2 for faster animation
+        function toggleLike(postId) {
+            const likeIcon = document.getElementById(`like-icon-${postId}`);
+            const likeCountElement = document.getElementById(`like-count-${postId}`);
+
+            // Toggle the icon and like count appearance without saving the state
+            if (likeIcon.classList.contains('bi-heart')) {
+                // Switch to liked state
+                likeIcon.classList.remove('bi-heart');
+                likeIcon.classList.add('bi-heart-fill', 'active-like');
+                // Increase like count for display only
+                let currentLikes = parseInt(likeCountElement.textContent) || 0;
+                likeCountElement.textContent = `${currentLikes + 1} likes`;
+            } else {
+                // Switch back to unliked state
+                likeIcon.classList.remove('bi-heart-fill', 'active-like');
+                likeIcon.classList.add('bi-heart');
+                // Decrease like count for display only
+                let currentLikes = parseInt(likeCountElement.textContent) || 0;
+                likeCountElement.textContent = `${Math.max(0, currentLikes - 1)} likes`;
+            }
+        }
+
+        function openModal(postId, title, content, date) {
+            document.getElementById("modal-title").textContent = title;
+            document.getElementById("modal-content").textContent = content;
+            document.getElementById("modal-date").textContent = date;
+            document.getElementById("post-modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("post-modal").style.display = "none";
+        }
+
+        function searchPost() {
+            const input = document.getElementById("search-input").value;
+            document.querySelectorAll(".post").forEach(post => {
+                post.style.display = post.getAttribute("data-post-id") === input ? "block" : "none";
             });
-        });
-    </script>
-
-    <script>
-        function likePost(postId) {
-            fetch(`{% url 'like_post' 0 %}`.replace('/0/', `/${postId}/`), {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{ csrf_token }}', // CSRF token for security
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Update the like count on the page without refreshing
-                const likeCountElement = document.getElementById(`like-count-${postId}`);
-                likeCountElement.textContent = `${data.likes} likes`;
-            })
-            .catch(error => console.error('Error:', error));
         }
 
         function sharePost(postId) {
-            const baseUrl = 'http://127.0.0.1:8000'; // Replace with your actual site URL
-            const postUrl = `${baseUrl}/#post-${postId}`;
-
-            navigator.clipboard.writeText(postUrl)
-                .then(() => alert("Post link copied to clipboard!"))
-                .catch(error => console.error('Failed to copy text:', error));
+            const url = window.location.href.split("?")[0] + `?post=${postId}`;
+            navigator.clipboard.writeText(url).then(() => alert("Post link copied to clipboard!"));
         }
 
-// Function to open the modal and display post content
-function openModal(postId, title, content, date) {
-    // Set modal content
-    document.getElementById("modal-title").textContent = title;
-    document.getElementById("modal-content").textContent = content;
-    document.getElementById("modal-date").textContent = `Posted on: ${date}`;
-
-    // Show the modal
-    const modal = document.getElementById("post-modal");
-    modal.style.display = "flex";
-
-    // Push state to history to represent the modal being open
-    history.pushState({ modalOpen: true, postId: postId }, "", `#post-${postId}`);
-
-    // Add event listener for closing the modal on outside click
-    modal.addEventListener("click", closeModalOnOutsideClick);
-}
-
-// Function to close the modal
-function closeModal() {
-    const modal = document.getElementById("post-modal");
-    modal.style.display = "none";
-
-    // Replace the history state to go back without reloading the page
-    if (history.state && history.state.modalOpen) {
-        history.replaceState(null, "", location.pathname); // Clear hash without reload
-    }
-
-    // Remove the outside click event listener to avoid memory leaks
-    modal.removeEventListener("click", closeModalOnOutsideClick);
-}
-
-// Close modal if the user clicks outside the modal content
-function closeModalOnOutsideClick(event) {
-    const modalContent = document.querySelector(".modal-content");
-    if (!modalContent.contains(event.target)) {
-        closeModal();
-    }
-}
-
-// Handle the popstate event to close the modal if the back button is pressed
-window.addEventListener("popstate", (event) => {
-    if (!event.state || !event.state.modalOpen) {
-        // Close modal if there's no modal state in history
-        closeModal();
-    } else if (event.state.modalOpen) {
-        // Open the modal again if going back to a modal state
-        openModal(event.state.postId, document.getElementById("modal-title").textContent,
-                  document.getElementById("modal-content").textContent,
-                  document.getElementById("modal-date").textContent);
-    }
-});
-
-// Check URL on page load to open modal if there's a post ID in the URL hash
-document.addEventListener('DOMContentLoaded', () => {
-    const postIdMatch = window.location.hash.match(/#post-(\d+)/);
-    if (postIdMatch) {
-        const postId = postIdMatch[1];
-        fetch(`/${postId}/`)
-            .then(response => response.json())
-            .then(data => {
-                openModal(postId, data.title, data.content, `Posted on: ${data.created_at}`);
-            })
-            .catch(error => console.error('Error loading post:', error));
-    }
-});
-
-
-function searchPost() {
-    const postId = document.getElementById("search-input").value;
-
-    if (!postId) {
-        alert("Please enter a post number.");
-        return;
-    }
-
-    // Fetch post details using the entered post ID
-    fetch(`/${postId}/`)  // Adjust this to your API or URL endpoint for fetching post data
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Post not found");
-            }
-            return response.json();
-        })
-        .then(data => {
-            // If post is found, open the modal with the post details
-            openModal(postId, data.title, data.content, `Posted on: ${data.created_at}`);
-        })
-        .catch(error => {
-            console.error('Error loading post:', error);
-            alert("Post not found. Please enter a valid post number.");
+        // Ensure all icons are set to unliked on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.icon-container i.bi-heart-fill').forEach(icon => {
+                icon.classList.remove('bi-heart-fill', 'active-like');
+                icon.classList.add('bi-heart');
+            });
         });
-}
-
-</script>
+    </script>
 </body>
 </html>
