@@ -159,8 +159,14 @@
         .modal-content h2 {
             font-family: 'Figtree';
             color: #6a4e32;
-            margin-bottom: 20px;
             text-align: center;
+        }
+
+        .modal-content p {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #4e3b24;
         }
 
         .form-group {
@@ -270,9 +276,14 @@
     <div id="post-modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation();">
             <span class="close-button" onclick="closeModal()">&times;</span>
-            <h2 id="modal-title">Post Title</h2>
-            <p id="modal-content">Post content goes here...</p>
-            <small id="modal-date">Posted on: date</small>
+            <h2 id="modal-title" style="margin-bottom: 20px;">Post Title</h2>
+            <p id="modal-content" style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">Post content goes here...</p>
+            <small id="modal-date" style="color: #8b5e3c; font-weight: bold;">Posted on: date</small>
+            <div class="icon-container" style="margin-top: 20px; gap: 16px;">
+                <i class="bi bi-heart" id="view-like-icon"></i>
+                <span id="view-like-count" style="font-size: 16px; color: #6a4e32;">0</span>
+                <i class="bi bi-share" onclick="sharePostInModal();"></i>
+            </div>
         </div>
     </div>
 
@@ -367,7 +378,15 @@
         function openModal(postId, title, content, date) {
             document.getElementById("modal-title").textContent = title;
             document.getElementById("modal-content").textContent = content;
-            document.getElementById("modal-date").textContent = date;
+            document.getElementById("modal-date").textContent = `Posted on: ${date}`;
+        
+            const likeIcon = document.getElementById("view-like-icon");
+            const likeCount = document.getElementById("view-like-count");
+            const postLikes = document.getElementById(`like-count-${postId}`).textContent;
+        
+            likeIcon.className = document.getElementById(`like-icon-${postId}`).className; // Sync the heart icon state
+            likeCount.textContent = postLikes; // Sync the like count
+        
             document.getElementById("post-modal").style.display = "flex";
         }
 
@@ -422,6 +441,11 @@
 
         function sharePost(postId) {
             const url = window.location.href.split("?")[0] + `?post=${postId}`;
+            navigator.clipboard.writeText(url).then(() => alert("Post link copied to clipboard!"));
+        }
+
+        function sharePostInModal() {
+            const url = window.location.href;
             navigator.clipboard.writeText(url).then(() => alert("Post link copied to clipboard!"));
         }
 
