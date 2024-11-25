@@ -18,6 +18,7 @@
             flex-direction: column;
             align-items: center;
             padding-bottom: 60px;
+            overflow: auto;
         }
 
         h1 {
@@ -47,7 +48,7 @@
             width: 90%;
             max-width: 1200px;
             padding: 10px;
-            overflow-y: scroll;
+            overflow: auto;
         }
 
         .post {
@@ -119,6 +120,7 @@
             100% { transform: translateY(0); opacity: 1; }
         }
 
+        /* Enhanced modal background */
         .modal {
             display: none;
             position: fixed;
@@ -126,28 +128,95 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
 
+        /* Updated modal styles */
         .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
+            background-color: #fdfcf9;
+            padding: 30px;
+            border-radius: 15px;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.3s;
+            max-width: 600px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease-in-out;
+            position: relative;
         }
 
+        /* Add soft gradients and shadows */
+        .modal-content h2 {
+            font-family: 'Figtree';
+            color: #6a4e32;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #6a4e32;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d4b483;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #faf8f4;
+            box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #a07855;
+            box-shadow: 0px 0px 6px rgba(160, 120, 85, 0.4);
+        }
+
+        /* Style for the submit button */
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #a07855;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #8b5e3c;
+            transform: translateY(-2px);
+        }
+
+        /* Style for the close button */
         .close-button {
+            font-size: 24px;
+            color: #6a4e32;
             position: absolute;
             top: 15px;
-            right: 20px;
-            font-size: 24px;
+            right: 15px;
             cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-button:hover {
+            color: #a07855;
         }
 
         .active-like {
@@ -173,19 +242,17 @@
                 <p id="like-count-{{ post.id }}">{{ post.likes }} likes</p>
                 
                 <div class="icon-container">
-                    <i class="bi bi-heart" id="like-icon-{{ post.id }}" onclick="toggleLike({{ post.id }}); event.stopPropagation();"></i>
+                    <i class="bi bi-heart" id="like-icon-{{ post.id }}" onclick="toggleLike({{ post.id }});"></i>
                     <i class="bi bi-share" onclick="sharePost({{ post.id }}); event.stopPropagation();"></i>
                 </div>
             </div>
         {% endfor %}
-    </div>
-
-    <a href="{% url 'create_post' %}" class="create-post-button">Create a Post</a>
+    </div>       
 
     <div class="footer-bar">&copy; 2023 Notice Board. All rights reserved.</div>
 
-    <div id="post-modal" class="modal">
-        <div class="modal-content">
+    <div id="post-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation();">
             <span class="close-button" onclick="closeModal()">&times;</span>
             <h2 id="modal-title">Post Title</h2>
             <p id="modal-content">Post content goes here...</p>
@@ -193,27 +260,75 @@
         </div>
     </div>
 
+    <!-- logic for creating a new post -->
+
+    <div id="create-modal" class="modal" onclick="closeCreateModal()">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <span class="close-button" onclick="closeCreateModal()">&times;</span>
+            <h2>Create a New Note</h2>
+            <form id="create-note-form" onsubmit="submitNewNote(); return false;">
+                <div class="form-group">
+                    <label for="note-title">Title</label>
+                    <input type="text" id="note-title" required placeholder="Enter your note title">
+                </div>
+                <div class="form-group">
+                    <label for="note-content">Content</label>
+                    <textarea id="note-content" required placeholder="Tell us the best part of your day in all its rich detail! " rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="note-signed">Signed (optional)</label>
+                    <input type="text" id="note-signed" maxlength="12">
+                </div>
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <button class="create-post-button" onclick="openCreateModal()">Create Note</button>
+
     <script>
         function toggleLike(postId) {
+            event.stopPropagation();
             const likeIcon = document.getElementById(`like-icon-${postId}`);
             const likeCountElement = document.getElementById(`like-count-${postId}`);
-
-            // Toggle the icon and like count appearance without saving the state
-            if (likeIcon.classList.contains('bi-heart')) {
-                // Switch to liked state
-                likeIcon.classList.remove('bi-heart');
-                likeIcon.classList.add('bi-heart-fill', 'active-like');
-                // Increase like count for display only
-                let currentLikes = parseInt(likeCountElement.textContent) || 0;
-                likeCountElement.textContent = `${currentLikes + 1} likes`;
-            } else {
-                // Switch back to unliked state
+            let isLiked = likeIcon.classList.contains('bi-heart-fill');
+        
+            // Update UI immediately for better user experience
+            if (isLiked) {
                 likeIcon.classList.remove('bi-heart-fill', 'active-like');
                 likeIcon.classList.add('bi-heart');
-                // Decrease like count for display only
                 let currentLikes = parseInt(likeCountElement.textContent) || 0;
                 likeCountElement.textContent = `${Math.max(0, currentLikes - 1)} likes`;
+            } else {
+                likeIcon.classList.remove('bi-heart');
+                likeIcon.classList.add('bi-heart-fill', 'active-like');
+                let currentLikes = parseInt(likeCountElement.textContent) || 0;
+                likeCountElement.textContent = `${currentLikes + 1} likes`;
             }
+        
+            // Send AJAX request to backend to toggle like status
+            fetch(`/toggle-like/${postId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token
+                },
+                body: JSON.stringify({ isLiked: !isLiked })  // Toggle the isLiked state
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // If the request fails, revert the UI change
+                    toggleLike(postId);  // Revert the UI by calling the function again
+                } else {
+                    // Optionally, update the count with data.likes from the server to ensure accuracy
+                    likeCountElement.textContent = `${data.likes} likes`;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                toggleLike(postId);  // Revert the UI change on error
+            });
         }
 
         function openModal(postId, title, content, date) {
@@ -226,6 +341,44 @@
         function closeModal() {
             document.getElementById("post-modal").style.display = "none";
         }
+
+        function openCreateModal() {
+            document.getElementById("create-modal").style.display = "flex";
+        }
+
+        function closeCreateModal() {
+            document.getElementById("create-modal").style.display = "none";
+        }
+
+        function submitNewNote() {
+            const title = document.getElementById("note-title").value;
+            const content = document.getElementById("note-content").value;
+            const signed = document.getElementById("note-signed").value;
+
+            fetch('/create-note/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
+                },
+                body: JSON.stringify({ title, content, signed })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Refresh the page or update the UI accordingly
+                } else {
+                    alert('Error creating note. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert('Error creating note. Please try again.');
+            });
+
+            closeCreateModal(); // Optionally close the modal after submission
+        }
+
 
         function searchPost() {
             const input = document.getElementById("search-input").value;
