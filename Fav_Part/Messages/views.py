@@ -15,6 +15,9 @@ def home(request):
     random_posts = random.sample(posts, min(len(posts), 36))
     
     return render(request, 'home.html', {'posts': random_posts})
+
+def about(request):
+    return render(request, 'about.html')  # Render a new 'about.html' template
     
     
 @csrf_exempt

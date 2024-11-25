@@ -249,8 +249,11 @@
         {% endfor %}
     </div>       
 
-    <div class="footer-bar">&copy; 2023 Notice Board. All rights reserved.</div>
-
+    <div class="footer-bar">
+        <span>&copy; 2023 Notice Board. All rights reserved.</span>
+        <a href="{% url 'about' %}" style="color: #fff; text-decoration: underline; position: absolute; right: 15px; bottom: 10px;">About</a>
+    </div>
+    
     <div id="post-modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation();">
             <span class="close-button" onclick="closeModal()">&times;</span>
