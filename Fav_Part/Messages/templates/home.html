@@ -85,10 +85,19 @@
 
         .icon-container {
             display: flex;
-            gap: 15px;
+            align-items: center; /* Align icons and numbers vertically */
+            gap: 16px; /* Gap between like counter and share button */
             position: absolute;
             bottom: 15px;
             left: 15px;
+        }
+
+        .icon-container span {
+            font-family: 'Figtree', sans-serif; /* Change font to Figtree */
+            font-size: 16px;
+            color: #6a4e32; /* Match the text color */
+            font-weight: bold; /* Make the font bold */
+            user-select: none; /* Prevent text selection for a cleaner UI */
         }
 
         .icon-container i {
@@ -222,6 +231,12 @@
         .active-like {
             color: red !important; /* Ensure the color is red */
         }
+
+        .hidden {
+            display: none;
+        }
+
+
     </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
@@ -238,11 +253,9 @@
             <div class="post" data-post-id="{{ post.id }}" onclick="openModal({{ post.id }}, '{{ post.title }}', '{{ post.content|escapejs }}', '{{ post.created_at|date:'F j, Y' }}')">
                 <h2>{{ post.title }}</h2>
                 <p>{{ post.content }}</p>
-                <small>Posted on {{ post.created_at }}</small>
-                <p id="like-count-{{ post.id }}">{{ post.likes }} likes</p>
-                
                 <div class="icon-container">
                     <i class="bi bi-heart" id="like-icon-{{ post.id }}" onclick="toggleLike({{ post.id }});"></i>
+                    <span id="like-count-{{ post.id }}" style="font-size: 16px; color: #6a4e32;">{{ post.likes }}</span>
                     <i class="bi bi-share" onclick="sharePost({{ post.id }}); event.stopPropagation();"></i>
                 </div>
             </div>
@@ -295,44 +308,61 @@
             const likeIcon = document.getElementById(`like-icon-${postId}`);
             const likeCountElement = document.getElementById(`like-count-${postId}`);
             let isLiked = likeIcon.classList.contains('bi-heart-fill');
-        
-            // Update UI immediately for better user experience
+            let currentLikes = parseInt(likeCountElement.textContent) || 0;
+
+            // Update UI immediately
             if (isLiked) {
                 likeIcon.classList.remove('bi-heart-fill', 'active-like');
                 likeIcon.classList.add('bi-heart');
-                let currentLikes = parseInt(likeCountElement.textContent) || 0;
-                likeCountElement.textContent = `${Math.max(0, currentLikes - 1)} likes`;
+                currentLikes = Math.max(0, currentLikes - 1);
             } else {
                 likeIcon.classList.remove('bi-heart');
                 likeIcon.classList.add('bi-heart-fill', 'active-like');
-                let currentLikes = parseInt(likeCountElement.textContent) || 0;
-                likeCountElement.textContent = `${currentLikes + 1} likes`;
+                currentLikes += 1;
             }
-        
-            // Send AJAX request to backend to toggle like status
+
+            // Update the like count
+            likeCountElement.textContent = currentLikes;
+
+            // Show or hide the like counter
+            if (currentLikes > 0) {
+                likeCountElement.classList.remove('hidden');
+            } else {
+                likeCountElement.classList.add('hidden');
+            }
+
+            // Send AJAX request to backend
             fetch(`/toggle-like/${postId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token
+                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token
                 },
-                body: JSON.stringify({ isLiked: !isLiked })  // Toggle the isLiked state
+                body: JSON.stringify({ isLiked: !isLiked })
             })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
-                    // If the request fails, revert the UI change
-                    toggleLike(postId);  // Revert the UI by calling the function again
+                    // Revert UI on failure
+                    toggleLike(postId);
                 } else {
-                    // Optionally, update the count with data.likes from the server to ensure accuracy
-                    likeCountElement.textContent = `${data.likes} likes`;
+                    // Sync UI with server's like count
+                    likeCountElement.textContent = data.likes;
+
+                    // Show or hide the like counter based on updated count
+                    if (data.likes > 0) {
+                        likeCountElement.classList.remove('hidden');
+                    } else {
+                        likeCountElement.classList.add('hidden');
+                    }
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                toggleLike(postId);  // Revert the UI change on error
+                toggleLike(postId); // Revert UI on error
             });
         }
+
 
         function openModal(postId, title, content, date) {
             document.getElementById("modal-title").textContent = title;
@@ -397,6 +427,12 @@
 
         // Ensure all icons are set to unliked on page load
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.icon-container span').forEach(span => {
+                if (parseInt(span.textContent) === 0) {
+                    span.classList.add('hidden');
+                }
+            });
+        
             document.querySelectorAll('.icon-container i.bi-heart-fill').forEach(icon => {
                 icon.classList.remove('bi-heart-fill', 'active-like');
                 icon.classList.add('bi-heart');
